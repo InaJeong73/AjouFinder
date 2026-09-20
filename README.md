@@ -1,109 +1,58 @@
-# 🧑‍💻 AjouFinder
-대학교 내 분실물을 효율적으로 찾아주는 웹앱 서비스
-![image-removebg-preview](https://github.com/user-attachments/assets/358c29e8-cae5-47c2-a9a6-4ff033566c8e)![1-removebg-preview (1)](https://github.com/user-attachments/assets/4b3af381-5d98-426d-8a53-044159a86889)
+# AjouFinder
 
-## 🎯 개요
+**교내 분실물과 발견물을 한곳에서 관리하는 백엔드**
 
-이 웹 애플리케이션은 [대학교 이름] 내에서 **분실물**과 **발견물**을 효율적으로 찾을 수 있도록 돕는 서비스입니다. 사용자는 분실된 물품과 발견된 물품을 게시하고, 위치 정보와 함께 관련된 세부 사항을 관리할 수 있습니다.
+`Java 17` · `Spring Boot 3.3.5` · `JPA / QueryDSL` · `MySQL` · `Redis` · `JWT`
 
----
+개인 프로젝트로 진행한 분실물·발견물 관리 서비스입니다. 게시물과 위치, 처리 상태를 연결해 물건을 찾는 과정을 지원합니다.
 
-## ⚙️ 기술 스택
+## 주요 기능
 
-- **백엔드**:  ![Java](https://img.shields.io/badge/Java-007396?style=flat-square&logo=Java&logoColor=white),  ![Spring Boot](https://img.shields.io/badge/SpringBoot-6DB33F?style=flat-square&logo=SpringBoot&logoColor=white),  ![Spring Security](https://img.shields.io/badge/SpringSecurity-6DB33F?style=flat-square&logo=SpringSecurity&logoColor=white)
-- **데이터베이스**:  ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=MySQL&logoColor=white)
-- **캐싱**:  ![Redis](https://img.shields.io/badge/Redis-FF4438?style=flat-square&logo=Redis&logoColor=white)
-- **인증**:  ![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=JSONWebTokens&logoColor=white)를 사용한 사용자 로그인 및 세션 관리
-- **컨테이너화**:  ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=Docker&logoColor=white)를 사용한 애플리케이션 배포
-- **API 문서화**: ![OpenAPI](https://img.shields.io/badge/OpenAPI-0D4C92?style=flat-square&logo=OpenAPI&logoColor=white) (Swagger)
+| 기능 | 내용 | 코드 |
+| --- | --- | --- |
+| 게시물 | 분실·발견 게시글 CRUD, 날짜·위치 등 필터, 처리·해결 상태 | [BoardController](ajoufinder/src/main/java/com/ajoufinder/api/controller/board/BoardController.java) |
+| 위치 | 위치 등록·조회·수정·활성화 | [LocationController](ajoufinder/src/main/java/com/ajoufinder/api/controller/location/LocationController.java) |
+| 회원 | 가입·로그인, 사용자 게시물 조회 | [UserController](ajoufinder/src/main/java/com/ajoufinder/api/controller/user/UserController.java) |
+| 인증 | 이메일 검증, 닉네임 중복 확인 | [AuthController](ajoufinder/src/main/java/com/ajoufinder/api/controller/auth/AuthController.java) |
 
----
+## 설계 살펴보기
 
-## 🚀 주요 기능
+- `api`: 컨트롤러와 서비스. 게시물·회원에서 조회와 변경 서비스를 분리합니다.
+- `domain`: 엔티티와 저장소. [게시판 QueryDSL 조회](ajoufinder/src/main/java/com/ajoufinder/domain/board/repository/custom/BoardRepositoryCustomImpl.java)를 확인할 수 있습니다.
+- `common`: 보안·공통 설정과 예외 처리.
 
-- **사용자 등록 및 로그인**: 이메일과 비밀번호로 사용자를 등록하고 로그인할 수 있습니다.
-- **분실물 및 발견물 게시판**: 분실물과 발견물을 게시하고 검색할 수 있습니다.
-- **위치 관리**: 캠퍼스 내 위치를 등록하고, 해당 위치에서 발생한 분실물/발견물 정보를 관리합니다.
-- **물품 필터링**: 날짜, 위치, 상태 등 다양한 기준으로 물품을 필터링할 수 있습니다.
-- **이메일 인증**: 이메일 인증을 통해 사용자 신뢰성을 보장합니다.
+## 실행 조건
 
----
+프로젝트 루트가 아닌 **`ajoufinder/` 하위 폴더**에 Gradle 애플리케이션이 있습니다.
 
-## 🛠️ API 엔드포인트
+```bash
+git clone https://github.com/InaJeong73/AjouFinder.git
+cd AjouFinder/ajoufinder
+./gradlew bootRun
+```
 
-### 1. 사용자 컨트롤러
+Windows는 `.\gradlew.bat bootRun`을 사용합니다. JDK 17과 별도 DB·메일·인증 환경 설정이 필요합니다. 현재 저장소에는 실행용 `application.yml`이 포함되지 않아 위 명령만으로 바로 기동되지는 않습니다. 운영 자격증명 대신 개인 개발용 설정을 준비해야 합니다.
 
-- **POST /register**  
-  새 사용자를 등록합니다. (이메일, 비밀번호, 닉네임 등)
-  
-- **POST /login**  
-  이메일과 비밀번호로 로그인합니다.
+## API 빠른 안내
 
-### 2. 위치 컨트롤러
+| 경로 | 역할 |
+| --- | --- |
+| `/register`, `/login` | 회원가입·로그인 |
+| `/api/v1/boards/lost`, `/api/v1/boards/found` | 게시글 등록·목록 |
+| `/api/v1/boards/{boardId}` | 상세조회·수정·삭제 |
+| `/api/v1/locations` | 위치 관리 |
+| `/api/v1/auth/email/verify` | 이메일 검증 |
 
-- **GET /api/v1/locations**  
-  등록된 모든 위치 목록을 조회합니다.
-  
-- **POST /api/v1/locations**  
-  새로운 위치를 등록합니다.
-  
-- **PATCH /api/v1/locations/{locationId}/update**  
-  기존 위치 정보를 업데이트합니다.
+상세 요청·응답은 링크한 컨트롤러와 DTO를 기준으로 확인합니다.
 
-- **PATCH /api/v1/locations/{locationId}/activate**  
-  위치를 활성화하여 분실물 및 발견물을 등록할 수 있게 합니다.
+<details>
+<summary>프로젝트 화면</summary>
 
-- **DELETE /api/v1/locations/{locationId}**  
-  위치를 삭제합니다.
+![AjouFinder 화면 1](https://github.com/user-attachments/assets/358c29e8-cae5-47c2-a9a6-4ff033566c8e)
+![AjouFinder 화면 2](https://github.com/user-attachments/assets/4b3af381-5d98-426d-8a53-044159a86889)
 
-### 3. 게시판 컨트롤러
+</details>
 
-- **GET /api/v1/boards/lost**  
-  분실물 목록을 조회합니다. 다양한 필터링 옵션을 제공합니다.
+## 다음 개선 후보
 
-- **POST /api/v1/boards/lost**  
-  새로운 분실물 게시물을 등록합니다.
-
-- **GET /api/v1/boards/found**  
-  발견물 목록을 조회합니다.
-
-- **POST /api/v1/boards/found**  
-  새로운 발견물 게시물을 등록합니다.
-
-- **GET /api/v1/boards/{boardId}**  
-  특정 게시물의 상세 정보를 조회합니다.
-
-- **PATCH /api/v1/boards/{boardId}/resolve**  
-  게시물 상태를 해결 완료로 업데이트합니다.
-
-- **PATCH /api/v1/boards/{boardId}/process**  
-  게시물 상태를 처리 중으로 업데이트합니다.
-
-- **DELETE /api/v1/boards/{boardId}**  
-  게시물을 삭제합니다.
-
-### 4. 인증 컨트롤러
-
-- **POST /api/v1/auth/email/verify**  
-  사용자의 이메일 인증을 수행합니다.
-
-- **GET /api/v1/auth/nickname/check**  
-  닉네임의 사용 가능 여부를 확인합니다.
-
-### 5. 게시판 필터링
-
-- **GET /api/v1/boards/lost/filter**  
-  분실물 게시물에 대해 날짜, 시간, 위치, 상태 등을 기준으로 필터링하여 조회합니다.
-
-- **GET /api/v1/boards/found/filter**  
-  발견물 게시물에 대해 날짜, 시간, 위치, 상태 등을 기준으로 필터링하여 조회합니다.
-
----
-
-## 📝 Notion 링크
-
-요구사항 명세서, API 문서는 [Notion](https://mysterious-angle-c99.notion.site/AjouFinder-1290e645957c801cbdc7ccde5759a442?pvs=74)에서 확인하실 수 있습니다.
-
----
-
----
+로컬 설정 예제와 재현 가능한 테스트 데이터, 필터 조합·페이지 경계 테스트를 보강할 예정입니다. 아직 완료한 기능이나 성능 성과로 표시하지 않습니다.
